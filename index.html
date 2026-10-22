@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Delete all metadata with a single click">
+    <title>Vcorp - Metadata Remover</title>
+    <!-- The page stays hidden until its styles and fonts are ready, then fades in (at the latest after 3 s) -->
+    <style>
+      html:not(.is-ready) body { opacity: 0; }
+      body { transition: opacity .4s ease; }
+      @media (prefers-reduced-motion: reduce) { body { transition: none; } }
+    </style>
+    <noscript><style>html:not(.is-ready) body { opacity: 1; }</style></noscript>
+    <script>
+      (function () {
+        var show = function () { document.documentElement.classList.add("is-ready"); };
+        setTimeout(show, 3000);
+        addEventListener("load", function () { (document.fonts ? document.fonts.ready : Promise.resolve()).then(show, show); });
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="assets/img/icon/V.svg">
+    <link rel="stylesheet" href="src/styles.css" />
+  </head>
+  <body>
+    <header class="top">
+      <nav class="frame" aria-label="Site">
+        <a class="cell logo" href="/" aria-label="Vcorp, home"><img src="assets/img/icon/logo.png" alt="" /></a>
+        <span class="grow"></span>
+        <a class="cell muted" href="/">File Transfer</a>
+        <a class="cell muted hide-sm" href="/docs/">API docs</a>
+        <span class="gap hide-sm"></span>
+        <a class="cell" href="./" aria-current="page">Metadata Remover</a>
+      </nav>
+    </header>
+
+    <main>
+      <div class="frame">
+        <section class="hero">
+          <div class="hero-head">
+            <h1><span>Locally</span> Metadata Cleaner</h1>
+            <p class="second_title">Zero uploaded to our servers. You can verify it in DevTools.</p>
+          </div>
+
+          <input type="file" id="input_file" multiple>
+          <label for="input_file">
+            <svg class="dropzone-icon" width="68" height="48" viewBox="0 0 68 48" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M34 34V3M21 16L34 3L47 16"></path>
+              <path d="M1.5 46H66.5"></path>
+            </svg>
+            <span>Drop your photos here.</span>
+          </label>
+
+          <div class="hero_metadata_viewer">
+            <div class="hero_metadata_viewer_carrousel"></div>
+
+            <div class="hero_metadata_viewer_container">
+              <div class="hero_metadata_viewer_container_switch">
+                <input type="radio" name="metadata_viewer_container_switch" id="hero_metadata_viewer_container_switch_before">
+                <label for="hero_metadata_viewer_container_switch_before">Before</label>
+                <span>/</span>
+                <input type="radio" name="metadata_viewer_container_switch" id="hero_metadata_viewer_container_switch_after" checked>
+                <label for="hero_metadata_viewer_container_switch_after">After</label>
+              </div>
+
+              <div class="hero_metadata_viewer_container_block">
+                <div class="hero_metadata_viewer_container_block_item">
+                  <div class="hero_metadata_viewer_container_block_item_text">
+                    <code></code>
+                  </div>
+                </div>
+                <div class="hero_metadata_viewer_container_block_item">
+                  <div class="hero_metadata_viewer_container_block_item_text">
+                    <code></code>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div id="drag_drop_area"></div>
+        </section>
+      </div>
+    </main>
+
+    <a href="" id="download" download=""></a>
+
+    <footer>
+      <div class="frame row foot-gap" aria-hidden="true"></div>
+      <div class="frame row foot">
+        <a class="brand" href="/" aria-label="Vcorp, home"><img src="assets/img/icon/logo.png" alt="" width="32" height="32" /><span>Vcorp</span></a>
+        <div class="links">
+          <div><h4>Products</h4><ul><li><a href="/">File Transfer</a></li><li><a href="./">Metadata Remover</a></li></ul></div>
+          <div><h4>Developers</h4><ul><li><a href="/docs/">API documentation</a></li><li><a href="#">Source code</a></li></ul></div>
+          <div><h4>Vcorp</h4><ul><li><a href="mailto:contact@vcorp.app">contact@vcorp.app</a></li></ul></div>
+        </div>
+      </div>
+      <div class="frame row bottom"><span>© 2026 Vcorp</span></div>
+    </footer>
+  </body>
+  <script type="module" src="./src/script.ts"></script>
+</html>

@@ -1,0 +1,364 @@
+/*============ PRESET ============*/
+
+@font-face { font-family: Inter; font-weight: 400; font-display: swap; src: url(/assets/fonts/Inter/static/Inter_18pt-Regular.ttf) format("truetype"); }
+@font-face { font-family: Inter; font-weight: 500; font-display: swap; src: url(/assets/fonts/Inter/static/Inter_18pt-Medium.ttf) format("truetype"); }
+
+/* Same tokens as the vcorp.app website */
+:root {
+    --ink: #000;
+    --ink-2: #3d3d3d;
+    --muted: #7b7b7b;
+    --line: #e6e6e6;
+    --paper: #fff;
+    --fog: #f4f4f4;
+    --burn: #ff4400;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+    --frame: 1240px;
+    --pad: clamp(20px, 4vw, 48px);
+    --transitionTime: 0.3s;
+    --transitionTime_short: 0.15s;
+    --transitionTime_longer: 0.5s;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    font: 400 16px/1.55 Inter, system-ui, sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    -webkit-font-smoothing: antialiased;
+}
+
+body, input, button { font-family: Inter, system-ui, sans-serif; }
+input, button { border: none; outline: none; }
+a { color: inherit; text-decoration: none; }
+:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+img { display: block; width: 100%; height: auto; }
+
+.body_scroll_disable {
+    overflow: hidden;
+    height: 100vh;
+}
+
+/* The frame: two vertical rails, every block is a row of the same grid */
+.frame { max-width: var(--frame); margin: 0 auto; border-inline: 1px solid var(--line); }
+.row { border-top: 1px solid var(--line); }
+
+/*============ DRAG AND DROP ============*/
+
+#drag_drop_area {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background-color: rgba(0, 0, 0, 0.1);
+    transition: var(--transitionTime);
+    pointer-events: none;
+    opacity: 0;
+}
+
+.drag_drop_area_active {
+    opacity: 1 !important;
+}
+
+/*============ HEADER: a row of cells, the same as File Transfer ============*/
+
+.top { position: sticky; top: 0; z-index: 20; background: var(--paper); border-bottom: 1px solid var(--line); }
+.top .frame { display: flex; height: 56px; }
+.top .cell { display: flex; align-items: center; padding-inline: 20px; border-right: 1px solid var(--line); font-size: 15px; white-space: nowrap; }
+.top .cell:hover { background: var(--fog); }
+.top .logo img { width: 26px; height: 26px; }
+.top .grow { flex: 1; border-right: 1px solid var(--line); }
+/* A narrow empty cell sets Metadata Remover apart from the File Transfer links */
+.top .gap { width: 11px; border-right: 1px solid var(--line); }
+/* The page you are on is the black cell */
+.top .cell[aria-current] { background: var(--ink); color: var(--paper); }
+.top .cell[aria-current]:hover { background: #222; }
+.top .muted { color: var(--muted); }
+
+/*============ HERO ============*/
+
+.hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hero-head {
+    text-align: center;
+    padding: clamp(64px, 9vw, 120px) var(--pad) clamp(40px, 5vw, 64px);
+}
+
+.hero h1 {
+    font-weight: 500;
+    font-size: clamp(44px, 7vw, 96px);
+    line-height: .98;
+    letter-spacing: -.05em;
+    max-width: 13ch;
+    margin: 0 auto;
+    transition: var(--transitionTime);
+}
+
+.hero h1 > span {
+    /* color: var(--burn); */
+}
+
+.second_title {
+    margin: 26px auto 0;
+    max-width: 34em;
+    font-size: 18px;
+    color: var(--ink-2);
+}
+
+.hero > #input_file {
+    display: none;
+}
+
+/* The drop zone: the same dashed band as on File Transfer. Its diagonal light sweeps across it while the photos are cleaned */
+.hero label[for="input_file"] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    width: 80%;
+    height: clamp(240px, 24vw, 300px);   /* a height, not a min-height: the GSAP animation shrinks it into the Download button */
+    border: 2px dashed var(--ink);
+    font-size: 16px;
+    color: var(--ink-2);
+    cursor: pointer;
+    background: linear-gradient(135deg, #e6e6e6 45%, #f8f8f8 50%, #e6e6e6 55%);
+    background-position-x: 100%;
+    background-repeat: no-repeat;
+    background-size: 400%;
+    transition: border-color .2s ease, color .2s ease, filter .2s ease;
+}
+
+.hero label[for="input_file"] > svg {
+    width: 68px;
+    height: 48px;
+}
+
+.hero_label_disable {
+    filter: brightness(70%);
+}
+
+@media (hover: hover) {
+    .hero label[for="input_file"]:hover {
+        color: var(--ink);
+    }
+}
+
+.hero label[for="input_file"]:active,
+.hero_label_active {
+    border-color: var(--muted);
+}
+
+/*============ METADATA VIEWER ============*/
+
+.hero_metadata_viewer {
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+    width: 80%;   /* as wide as the drop zone */
+    margin-top: 48px;
+    opacity: 0;
+}
+
+/* The cleaned files, one name after the other */
+.hero_metadata_viewer_carrousel {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    overflow-x: scroll;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    cursor: grab;
+    scroll-behavior: smooth;
+    mask-image: linear-gradient(90deg, transparent 0%, black 5%, black 95%, transparent 100%);
+}
+
+.hero_metadata_viewer_carrousel::-webkit-scrollbar {
+    display: none;
+}
+
+.hero_metadata_viewer_carrousel:active {
+    cursor: grabbing;
+}
+
+.hero_metadata_viewer_carrousel > input {
+    display: none;
+}
+
+.hero_metadata_viewer_carrousel > label {
+    font-size: 18px;
+    font-weight: 500;
+    letter-spacing: -.02em;
+    white-space: nowrap;
+    color: #b4b4b4;
+    cursor: grab;
+    user-select: none;
+    transition: var(--transitionTime_short);
+}
+
+.hero_metadata_viewer_carrousel > input:checked + label {
+    color: var(--ink);
+}
+
+.hero_metadata_viewer_carrousel > label:active {
+    cursor: grabbing;
+}
+
+/* A file that could not be cleaned */
+.hero_metadata_viewer_carrousel_label_fileNameRed {
+    color: #ffb199 !important;
+}
+
+.hero_metadata_viewer_carrousel > input:checked + .hero_metadata_viewer_carrousel_label_fileNameRed {
+    color: var(--burn) !important;
+}
+
+.hero_metadata_viewer_container {
+    position: relative;
+}
+
+/* Before / After switch, over the panels */
+.hero_metadata_viewer_container_switch {
+    position: absolute;
+    left: 10px;
+    top: 20px;
+    z-index: 1;
+    display: flex;
+    gap: 10px;
+    margin-left: 10px;
+    width: fit-content;
+    font-size: 20px;
+    font-weight: 600;
+    color: white;
+    mix-blend-mode: difference;
+    cursor: pointer;
+}
+
+.hero_metadata_viewer_container_switch > label {
+    cursor: pointer;
+    transition: var(--transitionTime);
+    filter: brightness(30%);
+}
+
+@media (hover: hover) {
+    .hero_metadata_viewer_container_switch > input:not(:checked) + label:hover {
+        filter: brightness(50%);
+    }
+}
+
+.hero_metadata_viewer_container_switch > input:checked + label {
+    filter: brightness(100%);
+}
+
+.hero_metadata_viewer_container_switch > input {
+    display: none;
+}
+
+.hero_metadata_viewer_container_switch:has(input:first-of-type:checked) + .hero_metadata_viewer_container_block .hero_metadata_viewer_container_block_item:first-child {
+    max-width: 100%;
+}
+
+.hero_metadata_viewer_container_switch:has(input:last-of-type:checked) + .hero_metadata_viewer_container_block .hero_metadata_viewer_container_block_item:last-child {
+    max-width: 100%;
+}
+
+.hero_metadata_viewer_container_block {
+    display: flex;
+}
+
+/* The two panels: the light one shows the metadata before, the dark window shows what is left after */
+.hero_metadata_viewer_container_block_item {
+    overflow: hidden;
+    height: 360px;
+    width: 100%;
+    max-width: 0;
+    background: var(--fog);
+    line-height: 1.75;
+    transition: var(--transitionTime_longer);
+}
+
+.hero_metadata_viewer_container_block_item:last-of-type {
+    background: #141414;
+    color: #ededed;
+}
+
+.hero_metadata_viewer_container_block_item_text {
+    margin-top: 65px;
+    height: calc(100% - 65px);
+    padding: 18px 20px 22px;
+    overflow-y: scroll;
+    border-top: 1px solid var(--line);
+}
+
+.hero_metadata_viewer_container_block_item:last-of-type .hero_metadata_viewer_container_block_item_text {
+    border-top-color: #262626;
+}
+
+.hero_metadata_viewer_container_block_item_text > code {
+    font: 13px/1.75 var(--mono);
+}
+
+/*============ FOOTER: the same as File Transfer ============*/
+
+/* Empty space between the tool and the footer, the rails keep going */
+.foot-gap { height: clamp(100px, 12vw, 180px); background: black; }
+.foot { display: grid; grid-template-columns: 1fr; }
+.brand { display: flex; align-items: center; gap: 12px; padding: 40px var(--pad); font-weight: 500; font-size: 24px; letter-spacing: -.03em; }
+.brand img { width: 32px; height: 32px; }
+/* On small screens the link groups sit two by two, the last one across */
+.links { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--line); }
+.links > div { padding: 32px var(--pad); }
+.links > div:nth-child(2) { border-left: 1px solid var(--line); }
+.links > div:nth-child(3) { grid-column: 1 / -1; border-top: 1px solid var(--line); }
+.links h4 { font-weight: 400; font-size: 15px; color: var(--muted); }
+.links ul { list-style: none; margin-top: 16px; }
+.links li { padding-block: 3px; }
+.links a:hover { color: var(--muted); }
+.bottom { padding: 24px var(--pad) 40px; font-size: 14px; color: var(--muted); }
+
+/*============ RESPONSIVE ============*/
+
+@media (min-width: 900px) {
+    .foot { grid-template-columns: 1fr 3fr; }
+    .brand { align-self: start; }
+    .links { grid-template-columns: repeat(3, 1fr); border-top: 0; border-left: 1px solid var(--line); }
+    .links > div { padding-block: 40px; }
+    .links > div:nth-child(3) { grid-column: auto; border-top: 0; border-left: 1px solid var(--line); }
+}
+
+@media (max-width: 720px) {
+    /* The first screen holds the title and the drop zone */
+    .hero-head { display: flex; flex-direction: column; justify-content: center; min-height: calc(100svh - 56px - 230px - 36px); padding-block: 32px; }
+    .hero label[for="input_file"] { height: 230px; }
+    .hero_metadata_viewer_container_block_item { height: 320px; }
+}
+
+/* Header on narrow screens: the three links need 484 px, or 417 px with tighter cells */
+@media (max-width: 500px) {
+    .top .cell { padding-inline: 14px; font-size: 14px; }
+}
+@media (max-width: 430px) {
+    .top .hide-sm { display: none; }
+}
+@media (max-width: 340px) {
+    .top .cell { padding-inline: 10px; }
+}
+
+/* Short phones: a smaller title so both parts still fit on the first screen */
+@media (max-width: 720px) and (max-height: 640px) {
+    .hero h1 { font-size: 36px; }
+    .second_title { margin-top: 16px; font-size: 15px; }
+    .hero-head { min-height: calc(100svh - 56px - 180px - 32px); padding-block: 20px; }
+    .hero label[for="input_file"] { height: 180px; }
+}
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
